@@ -11,4 +11,3 @@ six
 h5py
 wikiextractor
 pyvi
-mpi4py
