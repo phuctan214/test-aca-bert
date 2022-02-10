@@ -80,3 +80,54 @@ deepspeed run_pretraining.py \
 ### Time-based Training
 
 Pretraining can be limited to a time-based value by defining `--total_training_time=24.0` (24 hours for example).
+
+### Checkpoints and Finetune Checkpoints
+
+There are 2 types of checkpoints that can be enabled:
+
+- Training checkpoint - saves model weights, optimizer state and training args. Defined by `--num_epochs_between_checkpoints`.
+- Finetuning checkpoint - saves model weights and configuration to be used for finetuning later on. Defined by `--finetune_time_markers`.
+
+`finetune_time_markers` can be assigned multiple points in the training time-budget by providing a list of time markers of the overall training progress. For example `--finetune_time_markers=0.5` will save a finetuning checkpoint when reaching 50% of training time budget. For multiple finetuning checkpoints, use commas without space `0.5,0.6,0.9`.
+
+### Validation Scheduling
+
+Enable validation while pre-training with `--do_validation`
+
+Control the number of epochs between validation runs with `--validation_epochs=<num>`
+
+To control the amount of validation runs in the beginning and end (running more that `validation_epochs`) use `validation_begin_proportion` and `validation_end_proportion` to specify the proportion of time and, `validation_epochs_begin` and `validation_epochs_end` to control the custom values accordingly. 
+
+### Mixed Precision Training
+
+Mixed precision is supported by adding `--fp16`. Use `--fp16_backend=ds` to use Deepspeed's mixed precision backend and `--fp16_backend=apex` for `apex` (`--fp16_opt` controls optimization level).
+
+## Finetuning
+
+Use `run_glue.py` to run finetuning for a saved checkpoint on GLUE tasks. 
+
+The finetuning script is identical to the one provided by Huggingface with the addition of our model.
+
+For all possible pretraining arguments see: `python run_glue.py -h`
+
+##### Example for finetuning on MRPC:
+
+```bash
+python run_glue.py \
+  --model_name_or_path <path to model> \
+  --task_name MRPC \
+  --max_seq_length 128 \
+  --output_dir /tmp/finetuning \
+  --overwrite_output_dir \
+  --do_train --do_eval \
+  --evaluation_strategy steps \
+  --per_device_train_batch_size 32 --gradient_accumulation_steps 1 \
+  --per_device_eval_batch_size 32 \
+  --learning_rate 5e-5 \
+  --weight_decay 0.01 \
+  --eval_steps 50 --evaluation_strategy steps \
+  --max_grad_norm 1.0 \
+  --num_train_epochs 5 \
+  --lr_scheduler_type polynomial \
+  --warmup_steps 50
+```
