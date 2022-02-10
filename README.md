@@ -20,10 +20,6 @@ pip install -r requirements.txt
 
 We suggest running Deepspeed's utility `ds_report` and verify Deepspeed components can be compiled (JIT).
 
-## Dataset
-
-The [`dataset`](dataset/) directory includes scripts to pre-process the datasets we used in our experiments (Wikipedia, Bookcorpus). See dedicated [README](dataset/README.md) for full details.
-
 ## Pretraining
 
 Pretraining script: `run_pretraining.py`
